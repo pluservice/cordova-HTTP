@@ -1248,7 +1248,12 @@ typedef enum {
 
     [self.HTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(id field, id value, BOOL * __unused stop) {
         if (![request valueForHTTPHeaderField:field]) {
-            [mutableRequest setValue:value forHTTPHeaderField:field];
+            if (![value isEqual:[NSNull null]]) { // fix for "unrecognised selector sent to instance" when deviceID is null
+                [mutableRequest setValue:value forHTTPHeaderField:field];
+            }
+            else {
+                [mutableRequest setValue:[value description] forHTTPHeaderField:field];
+            }
         }
     }];
 
