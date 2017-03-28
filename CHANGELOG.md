@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.0
+
+- Added support for TLS 2.0 in Android
+
 ## v1.0.0
 
 - Added getBasicAuthHeader function
