@@ -21,15 +21,6 @@
  */
 package com.github.kevinsawicki.http;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.Proxy.Type.HTTP;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -85,12 +76,20 @@ import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.Proxy.Type.HTTP;
 
 /**
  * A fluid interface for making HTTP requests using an underlying
@@ -260,7 +259,7 @@ public class HttpRequest {
 
   private static final String[] EMPTY_STRINGS = new String[0];
   
-  private static SSLSocketFactory PINNED_FACTORY;
+  private static SSLSocketFactory  PINNED_FACTORY;
 
   private static SSLSocketFactory TRUSTED_FACTORY;
   
@@ -303,9 +302,13 @@ public class HttpRequest {
         }
       } };
       try {
+        /*
         SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, trustAllCerts, new SecureRandom());
+        context.init( null, trustAllCerts, new SecureRandom());
         TRUSTED_FACTORY = context.getSocketFactory();
+        */
+        TRUSTED_FACTORY = new TLSSocketFactory(null,trustAllCerts, new SecureRandom());
+
       } catch (GeneralSecurityException e) {
         IOException ioException = new IOException(
             "Security exception configuring SSL context");
@@ -453,9 +456,12 @@ public class HttpRequest {
       tmf.init(keyStore);
       
       // Create an SSLContext that uses our TrustManager
+      /*
       SSLContext sslContext = SSLContext.getInstance("TLS");
       sslContext.init(null, tmf.getTrustManagers(), null);
       PINNED_FACTORY = sslContext.getSocketFactory();
+      */
+      PINNED_FACTORY = new TLSSocketFactory(null, tmf.getTrustManagers(), null);
   }
   
   /**
