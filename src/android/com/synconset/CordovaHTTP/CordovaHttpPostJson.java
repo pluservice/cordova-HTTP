@@ -3,26 +3,24 @@
  */
 package com.synconset;
 
-import java.net.UnknownHostException;
-import java.util.Map;
+import com.github.kevinsawicki.http.HttpRequest;
+import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.UnknownHostException;
+import java.util.Map;
+
 import javax.net.ssl.SSLHandshakeException;
 
-import android.util.Log;
-
-import com.github.kevinsawicki.http.HttpRequest;
-import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
- 
 public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
-    
+
     public CordovaHttpPostJson(String urlString, JSONObject jsonObj, Map<String, String> headers, CallbackContext callbackContext) {
         super(urlString, jsonObj, headers, callbackContext);
     }
-    
+
     @Override
     public void run() {
         try {
@@ -45,7 +43,7 @@ public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
             }
         } catch (JSONException e) {
             this.respondWithError("There was an error generating the response");
-        }  catch (HttpRequestException e) {
+        } catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
                 this.respondWithError(0, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {

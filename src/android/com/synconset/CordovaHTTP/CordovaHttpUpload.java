@@ -3,37 +3,36 @@
  */
 package com.synconset;
 
-import java.io.File;
-import java.net.UnknownHostException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import android.webkit.MimeTypeMap;
+
+import com.github.kevinsawicki.http.HttpRequest;
+import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import javax.net.ssl.SSLHandshakeException;
 
-import android.util.Log;
-import android.webkit.MimeTypeMap;
-
-import com.github.kevinsawicki.http.HttpRequest;
-import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
- 
 public class CordovaHttpUpload extends CordovaHttp implements Runnable {
     private String filePath;
     private String name;
-    
+
     public CordovaHttpUpload(String urlString, Map<?, ?> params, Map<String, String> headers, CallbackContext callbackContext, String filePath, String name) {
         super(urlString, params, headers, callbackContext);
         this.filePath = filePath;
         this.name = name;
     }
-    
+
     @Override
     public void run() {
         try {
@@ -48,17 +47,17 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
             String ext = filePath.substring(index + 1);
             MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
             String mimeType = mimeTypeMap.getMimeTypeFromExtension(ext);
-            
-            Set<?> set = (Set<?>)this.getParams().entrySet();
+
+            Set<?> set = (Set<?>) this.getParams().entrySet();
             Iterator<?> i = set.iterator();
             while (i.hasNext()) {
-                Entry<?, ?> e = (Entry<?, ?>)i.next();
-                String key = (String)e.getKey();
+                Entry<?, ?> e = (Entry<?, ?>) i.next();
+                String key = (String) e.getKey();
                 Object value = e.getValue();
                 if (value instanceof Number) {
-                    request.part(key, (Number)value);
+                    request.part(key, (Number) value);
                 } else if (value instanceof String) {
-                    request.part(key, (String)value);
+                    request.part(key, (String) value);
                 } else {
                     this.respondWithError("All parameters must be Numbers or Strings");
                     return;
@@ -66,10 +65,10 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
             }
 
             request.part(this.name, filename, mimeType, new File(uri));
-            
+
             int code = request.code();
             String body = request.body(CHARSET);
-            
+
             JSONObject response = new JSONObject();
             this.addResponseHeaders(request, response);
             response.put("status", code);
@@ -84,7 +83,7 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
             this.respondWithError("There was an error loading the file");
         } catch (JSONException e) {
             this.respondWithError("There was an error generating the response");
-        }  catch (HttpRequestException e) {
+        } catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
                 this.respondWithError(0, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {

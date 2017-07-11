@@ -3,25 +3,9 @@
  */
 package com.synconset;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.HashMap;
+import android.content.res.AssetManager;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.HostnameVerifier;
+import com.github.kevinsawicki.http.HttpRequest;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -31,11 +15,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.res.AssetManager;
-import android.util.Base64;
-import android.util.Log;
-
-import com.github.kevinsawicki.http.HttpRequest;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class CordovaHttpPlugin extends CordovaPlugin {
     private static final String TAG = "CordovaHTTP";
@@ -83,7 +69,7 @@ public class CordovaHttpPlugin extends CordovaPlugin {
                 boolean enable = args.getBoolean(0);
                 this.enableSSLPinning(enable);
                 callbackContext.success();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 callbackContext.error("There was an error setting up ssl pinning");
             }
@@ -138,12 +124,12 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             // scan the www/certificates folder for .cer files as well
             files = assetManager.list("www/certificates");
             for (int i = 0; i < files.length; i++) {
-              index = files[i].lastIndexOf('.');
-              if (index != -1) {
-                if (files[i].substring(index).equals(".cer")) {
-                  cerFiles.add("www/certificates/" + files[i]);
+                index = files[i].lastIndexOf('.');
+                if (index != -1) {
+                    if (files[i].substring(index).equals(".cer")) {
+                        cerFiles.add("www/certificates/" + files[i]);
+                    }
                 }
-              }
             }
 
             for (int i = 0; i < cerFiles.size(); i++) {
@@ -162,7 +148,7 @@ public class CordovaHttpPlugin extends CordovaPlugin {
         Iterator<?> i = object.keys();
 
         while (i.hasNext()) {
-            String key = (String)i.next();
+            String key = (String) i.next();
             map.put(key, object.getString(key));
         }
         return map;
@@ -172,8 +158,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
         HashMap<String, Object> map = new HashMap<String, Object>();
         Iterator<?> i = object.keys();
 
-        while(i.hasNext()) {
-            String key = (String)i.next();
+        while (i.hasNext()) {
+            String key = (String) i.next();
             map.put(key, object.get(key));
         }
         return map;
