@@ -23,7 +23,8 @@ static BOOL AFErrorOrUnderlyingErrorHasCode(NSError *error, NSInteger code) {
         return nil;
     }
 
-    self.acceptableContentTypes = [NSSet setWithObjects:@"text/plain", @"text/html", @"text/json", @"application/json", @"text/xml", @"application/xml", @"text/css", @"text/javascript", nil];
+    self.acceptableContentTypes = [NSSet setWithObjects:@"text/plain", @"text/html", @"text/json", @"application/json", @"text/xml", @"application/xml", @"text/css", @"text/javascript",
+	@"application/rss+xml", nil];
 
     return self;
 }
