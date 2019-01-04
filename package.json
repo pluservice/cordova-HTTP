@@ -1,7 +1,7 @@
 {
   "name": "cordova-plugin-http",
-  "version": "2.1.4",
-  "description": "Cordova / Phonegap plugin for communicating with HTTP servers using SSL pinning",
+  "version": "2.1.5",
+  "description": "\r\n        Cordova / Phonegap plugin for communicating with HTTP servers using SSL pinning\r\n\t",
   "cordova": {
     "id": "cordova-plugin-http",
     "platforms": [
@@ -11,11 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wymsee/cordova-HTTP.git"
+    "url": "git+https://github.com/pluservice/cordova-HTTP.git"
   },
   "keywords": [
-    "cordova",
-    "device",
     "ecosystem:cordova",
     "cordova-ios",
     "cordova-android"
@@ -26,10 +24,10 @@
       "version": ">=3.0.0"
     }
   ],
-  "author": "Wymsee",
-  "license": "MIT",
+  "author": "",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wymsee/cordova-HTTP/issues"
+    "url": "https://github.com/pluservice/cordova-HTTP/issues"
   },
-  "homepage": "https://github.com/wymsee/cordova-HTTP#readme"
+  "homepage": "https://github.com/pluservice/cordova-HTTP#readme"
 }
