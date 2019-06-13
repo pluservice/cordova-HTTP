@@ -16,8 +16,12 @@ import java.util.Map;
 import javax.net.ssl.SSLHandshakeException;
 
 public class CordovaHttpGet extends CordovaHttp implements Runnable {
-    public CordovaHttpGet(String urlString, Map<?, ?> params, Map<String, String> headers, CallbackContext callbackContext) {
+
+    private final int timeout;
+
+    public CordovaHttpGet(String urlString, Map<?, ?> params, Map<String, String> headers, int timeout, CallbackContext callbackContext) {
         super(urlString, params, headers, callbackContext);
+        this.timeout = timeout;
     }
 
     @Override
@@ -27,6 +31,7 @@ public class CordovaHttpGet extends CordovaHttp implements Runnable {
             this.setupSecurity(request);
             request.acceptCharset(CHARSET);
             request.headers(this.getHeaders());
+            request.connectTimeout(timeout);
             int code = request.code();
             String body = request.body(CHARSET);
             JSONObject response = new JSONObject();

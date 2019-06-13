@@ -17,8 +17,11 @@ import javax.net.ssl.SSLHandshakeException;
 
 public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
 
-    public CordovaHttpPostJson(String urlString, JSONObject jsonObj, Map<String, String> headers, CallbackContext callbackContext) {
+    private final int timeout;
+
+    public CordovaHttpPostJson(String urlString, JSONObject jsonObj, Map<String, String> headers, final int timeout, CallbackContext callbackContext) {
         super(urlString, jsonObj, headers, callbackContext);
+        this.timeout = timeout;
     }
 
     @Override
@@ -29,6 +32,7 @@ public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
             request.headers(this.getHeaders());
             request.acceptJson();
             request.contentType(HttpRequest.CONTENT_TYPE_JSON);
+            request.connectTimeout(timeout);
             request.send(getJsonObject().toString());
             int code = request.code();
             String body = request.body(CHARSET);
