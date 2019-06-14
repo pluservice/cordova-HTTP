@@ -10,6 +10,7 @@ import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
             request.headers(this.getHeaders());
             request.acceptJson();
             request.contentType(HttpRequest.CONTENT_TYPE_JSON);
+            request.readTimeout(timeout);
             request.connectTimeout(timeout);
             request.send(getJsonObject().toString());
             int code = request.code();
@@ -46,15 +48,27 @@ public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
                 this.getCallbackContext().error(response);
             }
         } catch (JSONException e) {
-            this.respondWithError("There was an error generating the response");
-        } catch (HttpRequestException e) {
+            this.respondWithError(ERROR_CODES.JSON_EXCEPTION, "There was an error generating the response");
+        }
+        catch(UnknownHostException e) {
+            // Questo codice -1009 è lo stesso restituito dalla controparte iOS
+            this.respondWithError(ERROR_CODES.OFFLINE, "Offline");
+        }
+        catch(SocketTimeoutException e) {
+            // Questo codice -1009 è lo stesso restituito dalla controparte iOS
+            this.respondWithError(ERROR_CODES.CONNECTION_TIMEOUT, "Timeout");
+        }
+        catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
-                this.respondWithError(0, "The host could not be resolved");
+                this.respondWithError(ERROR_CODES.HOST_NOT_RESOLVED, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {
-                this.respondWithError("SSL handshake failed");
+                this.respondWithError(ERROR_CODES.HANDSHAKE_FAILED, "SSL handshake failed");
             } else {
-                this.respondWithError("There was an error with the request");
+                this.respondWithError(ERROR_CODES.GENERIC_HTTP_REQUEST_EXCEPTION, "There was an error with the request");
             }
+        }
+        catch(Throwable t) {
+            this.respondWithError(ERROR_CODES.INTERNAL_PLUGIN_ERROR, "Something evil happened!");
         }
     }
 }

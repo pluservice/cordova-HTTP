@@ -45,10 +45,12 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -2510,7 +2512,7 @@ public class HttpRequest {
      * @throws HttpRequestException
      */
     public HttpRequest partHeader(final String name, final String value)
-            throws HttpRequestException {
+            throws HttpRequestException, SocketTimeoutException, UnknownHostException {
         return send(name).send(": ").send(value).send(CRLF);
     }
 
@@ -2600,10 +2602,14 @@ public class HttpRequest {
      * @return this request
      * @throws HttpRequestException
      */
-    public HttpRequest send(final CharSequence value) throws HttpRequestException {
+    public HttpRequest send(final CharSequence value) throws HttpRequestException, UnknownHostException, SocketTimeoutException {
         try {
             openOutput();
             output.write(value.toString());
+        } catch (SocketTimeoutException e) {
+            throw e;
+        } catch (UnknownHostException e) {
+            throw e;
         } catch (IOException e) {
             throw new HttpRequestException(e);
         }

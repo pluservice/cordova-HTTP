@@ -32,7 +32,7 @@ public class CordovaHttpPost extends CordovaHttp implements Runnable {
             request.acceptCharset(CHARSET);
             request.headers(this.getHeaders());
             request.form(this.getParams());
-            request.connectTimeout(timeout);
+            request.readTimeout(timeout);
             int code = request.code();
             String body = request.body(CHARSET);
             JSONObject response = new JSONObject();
@@ -46,14 +46,14 @@ public class CordovaHttpPost extends CordovaHttp implements Runnable {
                 this.getCallbackContext().error(response);
             }
         } catch (JSONException e) {
-            this.respondWithError("There was an error generating the response");
+            this.respondWithError(ERROR_CODES.JSON_EXCEPTION, "There was an error generating the response");
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
-                this.respondWithError(0, "The host could not be resolved");
+                this.respondWithError(ERROR_CODES.HOST_NOT_RESOLVED, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {
-                this.respondWithError("SSL handshake failed");
+                this.respondWithError(ERROR_CODES.HANDSHAKE_FAILED, "SSL handshake failed");
             } else {
-                this.respondWithError("There was an error with the request");
+                this.respondWithError(ERROR_CODES.GENERIC_HTTP_REQUEST_EXCEPTION, "There was an error with the request");
             }
         }
     }

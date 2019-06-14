@@ -26,7 +26,7 @@ import java.util.Iterator;
 public class CordovaHttpPlugin extends CordovaPlugin {
     private static final String TAG = "CordovaHTTP";
 
-    private static final int DEFAULT_TIMEOUT = 60;
+    private static final int DEFAULT_TIMEOUT = 60 * 1000;
 
     private static int getTimeoutFromArgs(JSONArray obj, int index, int defaultVal) {
         try {
