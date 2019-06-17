@@ -59,7 +59,7 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
                 } else if (value instanceof String) {
                     request.part(key, (String) value);
                 } else {
-                    this.respondWithError(ERROR_CODES.INVALID_PARAMS_EXCEPTION,"All parameters must be Numbers or Strings");
+                    this.respondWithError(ERROR_CODES.INVALID_PARAMS_EXCEPTION, "All parameters must be Numbers or Strings");
                     return;
                 }
             }

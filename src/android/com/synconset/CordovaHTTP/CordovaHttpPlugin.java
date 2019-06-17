@@ -33,8 +33,7 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String s = obj.getString(index);
             int timeoutValue = s.matches("-?\\d+") ? Integer.parseInt(s) : defaultVal;
             return timeoutValue * 1000;
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             return defaultVal;
         }
 

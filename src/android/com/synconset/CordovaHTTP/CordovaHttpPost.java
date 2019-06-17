@@ -10,6 +10,7 @@ import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -52,6 +53,8 @@ public class CordovaHttpPost extends CordovaHttp implements Runnable {
                 this.respondWithError(ERROR_CODES.HOST_NOT_RESOLVED, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {
                 this.respondWithError(ERROR_CODES.HANDSHAKE_FAILED, "SSL handshake failed");
+            } else if (e.getCause() instanceof SocketTimeoutException) {
+                this.respondWithError(ERROR_CODES.CONNECTION_TIMEOUT, "Timeout");
             } else {
                 this.respondWithError(ERROR_CODES.GENERIC_HTTP_REQUEST_EXCEPTION, "There was an error with the request");
             }

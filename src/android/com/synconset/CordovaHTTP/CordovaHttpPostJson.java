@@ -49,25 +49,17 @@ public class CordovaHttpPostJson extends CordovaHttp implements Runnable {
             }
         } catch (JSONException e) {
             this.respondWithError(ERROR_CODES.JSON_EXCEPTION, "There was an error generating the response");
-        }
-        catch(UnknownHostException e) {
-            // Questo codice -1009 è lo stesso restituito dalla controparte iOS
-            this.respondWithError(ERROR_CODES.OFFLINE, "Offline");
-        }
-        catch(SocketTimeoutException e) {
-            // Questo codice -1009 è lo stesso restituito dalla controparte iOS
-            this.respondWithError(ERROR_CODES.CONNECTION_TIMEOUT, "Timeout");
-        }
-        catch (HttpRequestException e) {
+        } catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
                 this.respondWithError(ERROR_CODES.HOST_NOT_RESOLVED, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {
                 this.respondWithError(ERROR_CODES.HANDSHAKE_FAILED, "SSL handshake failed");
+            } else if (e.getCause() instanceof SocketTimeoutException) {
+                this.respondWithError(ERROR_CODES.CONNECTION_TIMEOUT, "Timeout");
             } else {
                 this.respondWithError(ERROR_CODES.GENERIC_HTTP_REQUEST_EXCEPTION, "There was an error with the request");
             }
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             this.respondWithError(ERROR_CODES.INTERNAL_PLUGIN_ERROR, "Something evil happened!");
         }
     }
