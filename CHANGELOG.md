@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0
+
+-   Esposto parametro TIMEOUT da passare alle chiamate POST, POSTJSON e GET.
+    **NOTA BENE:** Il valore del timeout da fornire va estresso in _secondi_.
+
 ## v2.1.0
 
 - Added support for TLS 2.0 in Android

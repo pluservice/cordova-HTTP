@@ -26,12 +26,13 @@ import java.util.Iterator;
 public class CordovaHttpPlugin extends CordovaPlugin {
     private static final String TAG = "CordovaHTTP";
 
-    private static final int DEFAULT_TIMEOUT = 60 * 1000;
+    private static final int DEFAULT_TIMEOUT = 60;
 
     private static int getTimeoutFromArgs(JSONArray obj, int index, int defaultVal) {
         try {
             String s = obj.getString(index);
-            return s.matches("-?\\d+") ? Integer.parseInt(s) : defaultVal;
+            int timeoutValue = s.matches("-?\\d+") ? Integer.parseInt(s) : defaultVal;
+            return timeoutValue * 1000;
         }
         catch(Throwable t) {
             return defaultVal;
