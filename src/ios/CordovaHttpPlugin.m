@@ -139,11 +139,18 @@
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
+    NSString *timeoutIntervalString = [command.arguments objectAtIndex:3];
     [self setRequestHeaders: headers forManager: manager];
    
     CordovaHttpPlugin* __weak weakSelf = self;
    
     manager.responseSerializer = [TextResponseSerializer serializer];
+    if (timeoutIntervalString != (id)[NSNull null]) {
+        float timeoutInterval = [timeoutIntervalString floatValue];
+        if (timeoutInterval > 0) {
+            manager.requestSerializer.timeoutInterval = timeoutInterval;
+        }
+    }
     [manager GET:url parameters:parameters progress:nil success:^(NSURLSessionTask *task, id responseObject) {
         NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
         [self setResults: dictionary withTask: task];
@@ -165,11 +172,18 @@
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
+    NSString *timeoutIntervalString = [command.arguments objectAtIndex:3];
     [self setRequestHeaders: headers forManager: manager];
     
     CordovaHttpPlugin* __weak weakSelf = self;
     
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    if (timeoutIntervalString != (id)[NSNull null]) {
+        float timeoutInterval = [timeoutIntervalString floatValue];
+        if (timeoutInterval > 0) {
+            manager.requestSerializer.timeoutInterval = timeoutInterval;
+        }
+    }
     [manager HEAD:url parameters:parameters success:^(NSURLSessionTask *task) {
         NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
         [self setResults: dictionary withTask: task];
