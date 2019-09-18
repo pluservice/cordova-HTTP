@@ -26,6 +26,19 @@ import java.util.Iterator;
 public class CordovaHttpPlugin extends CordovaPlugin {
     private static final String TAG = "CordovaHTTP";
 
+    private static final int DEFAULT_TIMEOUT = 60;
+
+    private static int getTimeoutFromArgs(JSONArray obj, int index, int defaultVal) {
+        try {
+            String s = obj.getString(index);
+            int timeoutValue = s.matches("-?\\d+") ? Integer.parseInt(s) : defaultVal;
+            return timeoutValue * 1000;
+        } catch (Throwable t) {
+            return defaultVal;
+        }
+
+    }
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -37,9 +50,10 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String urlString = args.getString(0);
             JSONObject params = args.getJSONObject(1);
             JSONObject headers = args.getJSONObject(2);
+            int timeout = getTimeoutFromArgs(args, 3, DEFAULT_TIMEOUT);
             HashMap<?, ?> paramsMap = this.getMapFromJSONObject(params);
             HashMap<String, String> headersMap = this.getStringMapFromJSONObject(headers);
-            CordovaHttpGet get = new CordovaHttpGet(urlString, paramsMap, headersMap, callbackContext);
+            CordovaHttpGet get = new CordovaHttpGet(urlString, paramsMap, headersMap, timeout, callbackContext);
             cordova.getThreadPool().execute(get);
         } else if (action.equals("head")) {
             String urlString = args.getString(0);
@@ -53,16 +67,18 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String urlString = args.getString(0);
             JSONObject params = args.getJSONObject(1);
             JSONObject headers = args.getJSONObject(2);
+            int timeout = getTimeoutFromArgs(args, 3, DEFAULT_TIMEOUT);
             HashMap<?, ?> paramsMap = this.getMapFromJSONObject(params);
             HashMap<String, String> headersMap = this.getStringMapFromJSONObject(headers);
-            CordovaHttpPost post = new CordovaHttpPost(urlString, paramsMap, headersMap, callbackContext);
+            CordovaHttpPost post = new CordovaHttpPost(urlString, paramsMap, headersMap, timeout, callbackContext);
             cordova.getThreadPool().execute(post);
         } else if (action.equals("postJson")) {
             String urlString = args.getString(0);
             JSONObject jsonObj = args.getJSONObject(1);
             JSONObject headers = args.getJSONObject(2);
+            int timeout = getTimeoutFromArgs(args, 3, DEFAULT_TIMEOUT);
             HashMap<String, String> headersMap = this.getStringMapFromJSONObject(headers);
-            CordovaHttpPostJson postJson = new CordovaHttpPostJson(urlString, jsonObj, headersMap, callbackContext);
+            CordovaHttpPostJson postJson = new CordovaHttpPostJson(urlString, jsonObj, headersMap, timeout, callbackContext);
             cordova.getThreadPool().execute(postJson);
         } else if (action.equals("enableSSLPinning")) {
             try {

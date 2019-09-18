@@ -21,7 +21,6 @@ public abstract class CordovaHttp {
     private static AtomicBoolean sslPinning = new AtomicBoolean(false);
     private static AtomicBoolean acceptAllCerts = new AtomicBoolean(false);
     private static AtomicBoolean validateDomainName = new AtomicBoolean(true);
-
     private String urlString;
     private Map<?, ?> params;
     private JSONObject jsonObject;
@@ -93,19 +92,15 @@ public abstract class CordovaHttp {
         return request;
     }
 
-    protected void respondWithError(int status, String msg) {
+    protected void respondWithError(ERROR_CODES status, String msg) {
         try {
             JSONObject response = new JSONObject();
-            response.put("status", status);
+            response.put("status", status.getValue());
             response.put("error", msg);
             this.callbackContext.error(response);
         } catch (JSONException e) {
             this.callbackContext.error(msg);
         }
-    }
-
-    protected void respondWithError(String msg) {
-        this.respondWithError(500, msg);
     }
 
     protected void addResponseHeaders(HttpRequest request, JSONObject response) throws JSONException {
@@ -119,5 +114,45 @@ public abstract class CordovaHttp {
             }
         }
         response.put("headers", new JSONObject(parsed_headers));
+    }
+
+//    protected void respondWithError(int status, String msg) {
+//        try {
+//            JSONObject response = new JSONObject();
+//            response.put("status", status);
+//            response.put("error", msg);
+//            this.callbackContext.error(response);
+//        } catch (JSONException e) {
+//            this.callbackContext.error(msg);
+//        }
+//    }
+
+//    protected void respondWithError(String msg) {
+//        this.respondWithError(ERROR_CODES.LEGACY_PLUGIN_ERROR, msg);
+//    }
+
+    protected enum ERROR_CODES {
+        HOST_NOT_RESOLVED(0),
+        CONNECTION_TIMEOUT(-1001),
+        OFFLINE(-1009),
+        INTERNAL_PLUGIN_ERROR(666),
+        // Potrei sembrare stronzo a mettere lo stesso codice ma ï¿½ perchï¿½ prima era tutto un 500
+        // e non vorrei spaccare qualche comportamento strano lato app!
+        JSON_EXCEPTION(500),
+        HANDSHAKE_FAILED(500),
+        GENERIC_HTTP_REQUEST_EXCEPTION(500),
+        URI_SYNTAX_EXCEPTION(500),
+        INVALID_PARAMS_EXCEPTION(500),
+        LEGACY_PLUGIN_ERROR(500);
+
+        public final int value;
+
+        ERROR_CODES(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 }

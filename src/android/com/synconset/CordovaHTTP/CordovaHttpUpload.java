@@ -59,7 +59,7 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
                 } else if (value instanceof String) {
                     request.part(key, (String) value);
                 } else {
-                    this.respondWithError("All parameters must be Numbers or Strings");
+                    this.respondWithError(ERROR_CODES.INVALID_PARAMS_EXCEPTION, "All parameters must be Numbers or Strings");
                     return;
                 }
             }
@@ -80,16 +80,16 @@ public class CordovaHttpUpload extends CordovaHttp implements Runnable {
                 this.getCallbackContext().error(response);
             }
         } catch (URISyntaxException e) {
-            this.respondWithError("There was an error loading the file");
+            this.respondWithError(ERROR_CODES.URI_SYNTAX_EXCEPTION, "There was an error loading the file");
         } catch (JSONException e) {
-            this.respondWithError("There was an error generating the response");
+            this.respondWithError(ERROR_CODES.JSON_EXCEPTION, "There was an error generating the response");
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof UnknownHostException) {
-                this.respondWithError(0, "The host could not be resolved");
+                this.respondWithError(ERROR_CODES.HOST_NOT_RESOLVED, "The host could not be resolved");
             } else if (e.getCause() instanceof SSLHandshakeException) {
-                this.respondWithError("SSL handshake failed");
+                this.respondWithError(ERROR_CODES.HANDSHAKE_FAILED, "SSL handshake failed");
             } else {
-                this.respondWithError("There was an error with the request");
+                this.respondWithError(ERROR_CODES.GENERIC_HTTP_REQUEST_EXCEPTION, "There was an error with the request");
             }
         }
     }
