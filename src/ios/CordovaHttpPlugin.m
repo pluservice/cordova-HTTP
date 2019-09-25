@@ -138,6 +138,9 @@
     manager.securityPolicy = securityPolicy;
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
+    if ([parameters count] == 0) {
+        parameters = nil;
+    }
     NSDictionary *headers = [command.arguments objectAtIndex:2];
     NSString *timeoutIntervalString = [command.arguments objectAtIndex:3];
     [self setRequestHeaders: headers forManager: manager];
