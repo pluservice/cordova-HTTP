@@ -2902,169 +2902,169 @@ public class HttpRequest {
 
     class MySocketFactory extends SSLSocketFactory {
 
-  private SSLSocketFactory internalSSLSocketFactory;
-  private  ArrayList<PublicKey> PINNED_PUBLIC_KEY;
+        private SSLSocketFactory internalSSLSocketFactory;
+        private ArrayList<PublicKey> PINNED_PUBLIC_KEY;
 
-  public MySocketFactory(ArrayList<PublicKey> pinnedPublicKey) throws KeyManagementException, NoSuchAlgorithmException {
-    PINNED_PUBLIC_KEY = pinnedPublicKey;
-    SSLContext context = SSLContext.getInstance("TLS");
-    context.init(null, null, null);
-    internalSSLSocketFactory = context.getSocketFactory();
-  }
-
-  @Override
-  public String[] getDefaultCipherSuites() {
-    return internalSSLSocketFactory.getDefaultCipherSuites();
-  }
-
-  @Override
-  public String[] getSupportedCipherSuites() {
-    return internalSSLSocketFactory.getSupportedCipherSuites();
-  }
-
-  @Override
-  public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-    return customHandshake(internalSSLSocketFactory.createSocket(s, host, port, autoClose));
-  }
-
-  @Override
-  public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-    return customHandshake(internalSSLSocketFactory.createSocket(host, port));
-  }
-
-  @Override
-  public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-    return customHandshake(internalSSLSocketFactory.createSocket(host, port, localHost, localPort));
-  }
-
-  @Override
-  public Socket createSocket(InetAddress host, int port) throws IOException {
-    return customHandshake(internalSSLSocketFactory.createSocket(host, port));
-  }
-
-  @Override
-  public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-    return customHandshake(internalSSLSocketFactory.createSocket(address, port, localAddress, localPort));
-  }
-
-  private Socket customHandshake(Socket socket) {
-
-    if(socket != null && (socket instanceof SSLSocket)) {
-      ((SSLSocket) socket).addHandshakeCompletedListener(new HandshakeCompletedListener() {
-        @Override
-        public void handshakeCompleted(HandshakeCompletedEvent event) {
-          boolean keyIsTrust = false;
-          for(PublicKey key : PINNED_PUBLIC_KEY){
-            try {
-              for(Certificate cer : event.getPeerCertificates()){
-                keyIsTrust = keyIsTrust || cer.getPublicKey().hashCode() == (key.hashCode());
-              }
-            } catch (SSLPeerUnverifiedException e) {
-              e.printStackTrace();
-            }
-          }
-          if(!keyIsTrust){
-            try {
-
-              event.getSocket().close();
-              //throw new SSLHandshakeException("Public Key not match");
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          }
-
+        public MySocketFactory(ArrayList<PublicKey> pinnedPublicKey) throws KeyManagementException, NoSuchAlgorithmException {
+            PINNED_PUBLIC_KEY = pinnedPublicKey;
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, null, null);
+            internalSSLSocketFactory = context.getSocketFactory();
         }
-      });
-    }
-    return socket;
-  }
 
-    /**
-     * Creates {@link HttpURLConnection HTTP connections} for
-     * {@link URL urls}.
-     */
-    public interface ConnectionFactory {
-        /**
-         * A {@link ConnectionFactory} which uses the built-in
-         * {@link URL#openConnection()}
-         */
-        ConnectionFactory DEFAULT = new ConnectionFactory() {
-            public HttpURLConnection create(URL url) throws IOException {
-                return (HttpURLConnection) url.openConnection();
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return internalSSLSocketFactory.getDefaultCipherSuites();
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return internalSSLSocketFactory.getSupportedCipherSuites();
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+            return customHandshake(internalSSLSocketFactory.createSocket(s, host, port, autoClose));
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+            return customHandshake(internalSSLSocketFactory.createSocket(host, port));
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+            return customHandshake(internalSSLSocketFactory.createSocket(host, port, localHost, localPort));
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            return customHandshake(internalSSLSocketFactory.createSocket(host, port));
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+            return customHandshake(internalSSLSocketFactory.createSocket(address, port, localAddress, localPort));
+        }
+
+        private Socket customHandshake(Socket socket) {
+
+            if (socket != null && (socket instanceof SSLSocket)) {
+                ((SSLSocket) socket).addHandshakeCompletedListener(new HandshakeCompletedListener() {
+                    @Override
+                    public void handshakeCompleted(HandshakeCompletedEvent event) {
+                        boolean keyIsTrust = false;
+                        for (PublicKey key : PINNED_PUBLIC_KEY) {
+                            try {
+                                for (Certificate cer : event.getPeerCertificates()) {
+                                    keyIsTrust = keyIsTrust || cer.getPublicKey().hashCode() == (key.hashCode());
+                                }
+                            } catch (SSLPeerUnverifiedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (!keyIsTrust) {
+                            try {
+
+                                event.getSocket().close();
+                                //throw new SSLHandshakeException("Public Key not match");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
             }
-
-            public HttpURLConnection create(URL url, Proxy proxy) throws IOException {
-                return (HttpURLConnection) url.openConnection(proxy);
-            }
-        };
+            return socket;
+        }
 
         /**
-         * Open an {@link HttpURLConnection} for the specified {@link URL}.
+         * Creates {@link HttpURLConnection HTTP connections} for
+         * {@link URL urls}.
+         */
+        public interface ConnectionFactory {
+            /**
+             * A {@link ConnectionFactory} which uses the built-in
+             * {@link URL#openConnection()}
+             */
+            ConnectionFactory DEFAULT = new ConnectionFactory() {
+                public HttpURLConnection create(URL url) throws IOException {
+                    return (HttpURLConnection) url.openConnection();
+                }
+
+                public HttpURLConnection create(URL url, Proxy proxy) throws IOException {
+                    return (HttpURLConnection) url.openConnection(proxy);
+                }
+            };
+
+            /**
+             * Open an {@link HttpURLConnection} for the specified {@link URL}.
+             *
+             * @throws IOException
+             */
+            HttpURLConnection create(URL url) throws IOException;
+
+            /**
+             * Open an {@link HttpURLConnection} for the specified {@link URL}
+             * and {@link Proxy}.
+             *
+             * @throws IOException
+             */
+            HttpURLConnection create(URL url, Proxy proxy) throws IOException;
+        }
+
+        /**
+         * Callback interface for reporting upload progress for a request.
+         */
+        public interface UploadProgress {
+            UploadProgress DEFAULT = new UploadProgress() {
+                public void onUpload(long uploaded, long total) {
+                }
+            };
+
+            /**
+             * Callback invoked as data is uploaded by the request.
+             *
+             * @param uploaded The number of bytes already uploaded
+             * @param total    The total number of bytes that will be uploaded or -1 if
+             *                 the length is unknown.
+             */
+            void onUpload(long uploaded, long total);
+        }
+
+        /**
+         * <p>
+         * Encodes and decodes to and from Base64 notation.
+         * </p>
+         * <p>
+         * I am placing this code in the Public Domain. Do with it as you will. This
+         * software comes with no guarantees or warranties but with plenty of
+         * well-wishing instead! Please visit <a
+         * href="http://iharder.net/base64">http://iharder.net/base64</a> periodically
+         * to check for updates or to contribute improvements.
+         * </p>
          *
-         * @throws IOException
+         * @author Robert Harder
+         * @author rob@iharder.net
+         * @version 2.3.7
          */
-        HttpURLConnection create(URL url) throws IOException;
+        public static class Base64 {
 
-        /**
-         * Open an {@link HttpURLConnection} for the specified {@link URL}
-         * and {@link Proxy}.
-         *
-         * @throws IOException
-         */
-        HttpURLConnection create(URL url, Proxy proxy) throws IOException;
-    }
+            /**
+             * The equals sign (=) as a byte.
+             */
+            private final static byte EQUALS_SIGN = (byte) '=';
 
-    /**
-     * Callback interface for reporting upload progress for a request.
-     */
-    public interface UploadProgress {
-        UploadProgress DEFAULT = new UploadProgress() {
-            public void onUpload(long uploaded, long total) {
-            }
-        };
+            /**
+             * Preferred encoding.
+             */
+            private final static String PREFERRED_ENCODING = "US-ASCII";
 
-        /**
-         * Callback invoked as data is uploaded by the request.
-         *
-         * @param uploaded The number of bytes already uploaded
-         * @param total    The total number of bytes that will be uploaded or -1 if
-         *                 the length is unknown.
-         */
-        void onUpload(long uploaded, long total);
-    }
-
-    /**
-     * <p>
-     * Encodes and decodes to and from Base64 notation.
-     * </p>
-     * <p>
-     * I am placing this code in the Public Domain. Do with it as you will. This
-     * software comes with no guarantees or warranties but with plenty of
-     * well-wishing instead! Please visit <a
-     * href="http://iharder.net/base64">http://iharder.net/base64</a> periodically
-     * to check for updates or to contribute improvements.
-     * </p>
-     *
-     * @author Robert Harder
-     * @author rob@iharder.net
-     * @version 2.3.7
-     */
-    public static class Base64 {
-
-        /**
-         * The equals sign (=) as a byte.
-         */
-        private final static byte EQUALS_SIGN = (byte) '=';
-
-        /**
-         * Preferred encoding.
-         */
-        private final static String PREFERRED_ENCODING = "US-ASCII";
-
-        /**
-         * The 64 valid Base64 values.
-         */
-        private final static byte[] _STANDARD_ALPHABET = {(byte) 'A', (byte) 'B',
+            /**
+             * The 64 valid Base64 values.
+             */
+            private final static byte[] _STANDARD_ALPHABET = {(byte) 'A', (byte) 'B',
                 (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H',
                 (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L', (byte) 'M', (byte) 'N',
                 (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S', (byte) 'T',
@@ -3077,348 +3077,351 @@ public class HttpRequest {
                 (byte) '4', (byte) '5', (byte) '6', (byte) '7', (byte) '8', (byte) '9',
                 (byte) '+', (byte) '/'};
 
-        /**
-         * Defeats instantiation.
-         */
-        private Base64() {
-        }
+            /**
+             * Defeats instantiation.
+             */
+            private Base64() {
+            }
 
-        /**
-         * <p>
-         * Encodes up to three bytes of the array <var>source</var> and writes the
-         * resulting four Base64 bytes to <var>destination</var>. The source and
-         * destination arrays can be manipulated anywhere along their length by
-         * specifying <var>srcOffset</var> and <var>destOffset</var>. This method
-         * does not check to make sure your arrays are large enough to accomodate
-         * <var>srcOffset</var> + 3 for the <var>source</var> array or
-         * <var>destOffset</var> + 4 for the <var>destination</var> array. The
-         * actual number of significant bytes in your array is given by
-         * <var>numSigBytes</var>.
-         * </p>
-         * <p>
-         * This is the lowest level of the encoding methods with all possible
-         * parameters.
-         * </p>
-         *
-         * @param source      the array to convert
-         * @param srcOffset   the index where conversion begins
-         * @param numSigBytes the number of significant bytes in your array
-         * @param destination the array to hold the conversion
-         * @param destOffset  the index where output will be put
-         * @return the <var>destination</var> array
-         * @since 1.3
-         */
-        private static byte[] encode3to4(byte[] source, int srcOffset,
-                                         int numSigBytes, byte[] destination, int destOffset) {
+            /**
+             * <p>
+             * Encodes up to three bytes of the array <var>source</var> and writes the
+             * resulting four Base64 bytes to <var>destination</var>. The source and
+             * destination arrays can be manipulated anywhere along their length by
+             * specifying <var>srcOffset</var> and <var>destOffset</var>. This method
+             * does not check to make sure your arrays are large enough to accomodate
+             * <var>srcOffset</var> + 3 for the <var>source</var> array or
+             * <var>destOffset</var> + 4 for the <var>destination</var> array. The
+             * actual number of significant bytes in your array is given by
+             * <var>numSigBytes</var>.
+             * </p>
+             * <p>
+             * This is the lowest level of the encoding methods with all possible
+             * parameters.
+             * </p>
+             *
+             * @param source      the array to convert
+             * @param srcOffset   the index where conversion begins
+             * @param numSigBytes the number of significant bytes in your array
+             * @param destination the array to hold the conversion
+             * @param destOffset  the index where output will be put
+             * @return the <var>destination</var> array
+             * @since 1.3
+             */
+            private static byte[] encode3to4(byte[] source, int srcOffset,
+                                             int numSigBytes, byte[] destination, int destOffset) {
 
-            byte[] ALPHABET = _STANDARD_ALPHABET;
+                byte[] ALPHABET = _STANDARD_ALPHABET;
 
-            int inBuff = (numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
+                int inBuff = (numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
                     | (numSigBytes > 1 ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
                     | (numSigBytes > 2 ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
 
-            switch (numSigBytes) {
-                case 3:
-                    destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-                    destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-                    destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
-                    destination[destOffset + 3] = ALPHABET[(inBuff) & 0x3f];
-                    return destination;
+                switch (numSigBytes) {
+                    case 3:
+                        destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+                        destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+                        destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
+                        destination[destOffset + 3] = ALPHABET[(inBuff) & 0x3f];
+                        return destination;
 
-                case 2:
-                    destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-                    destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-                    destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
-                    destination[destOffset + 3] = EQUALS_SIGN;
-                    return destination;
+                    case 2:
+                        destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+                        destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+                        destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
+                        destination[destOffset + 3] = EQUALS_SIGN;
+                        return destination;
 
-                case 1:
-                    destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-                    destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-                    destination[destOffset + 2] = EQUALS_SIGN;
-                    destination[destOffset + 3] = EQUALS_SIGN;
-                    return destination;
+                    case 1:
+                        destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+                        destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+                        destination[destOffset + 2] = EQUALS_SIGN;
+                        destination[destOffset + 3] = EQUALS_SIGN;
+                        return destination;
 
-                default:
-                    return destination;
+                    default:
+                        return destination;
+                }
             }
-        }
 
-        /**
-         * Encode string as a byte array in Base64 annotation.
-         *
-         * @param string
-         * @return The Base64-encoded data as a string
-         */
-        public static String encode(String string) {
-            byte[] bytes;
-            try {
-                bytes = string.getBytes(PREFERRED_ENCODING);
-            } catch (UnsupportedEncodingException e) {
-                bytes = string.getBytes();
+            /**
+             * Encode string as a byte array in Base64 annotation.
+             *
+             * @param string
+             * @return The Base64-encoded data as a string
+             */
+            public static String encode(String string) {
+                byte[] bytes;
+                try {
+                    bytes = string.getBytes(PREFERRED_ENCODING);
+                } catch (UnsupportedEncodingException e) {
+                    bytes = string.getBytes();
+                }
+                return encodeBytes(bytes);
             }
-            return encodeBytes(bytes);
-        }
 
-        /**
-         * Encodes a byte array into Base64 notation.
-         *
-         * @param source The data to convert
-         * @return The Base64-encoded data as a String
-         * @throws NullPointerException     if source array is null
-         * @throws IllegalArgumentException if source array, offset, or length are invalid
-         * @since 2.0
-         */
-        public static String encodeBytes(byte[] source) {
-            return encodeBytes(source, 0, source.length);
-        }
-
-        /**
-         * Encodes a byte array into Base64 notation.
-         *
-         * @param source The data to convert
-         * @param off    Offset in array where conversion should begin
-         * @param len    Length of data to convert
-         * @return The Base64-encoded data as a String
-         * @throws NullPointerException     if source array is null
-         * @throws IllegalArgumentException if source array, offset, or length are invalid
-         * @since 2.0
-         */
-        public static String encodeBytes(byte[] source, int off, int len) {
-            byte[] encoded = encodeBytesToBytes(source, off, len);
-            try {
-                return new String(encoded, PREFERRED_ENCODING);
-            } catch (UnsupportedEncodingException uue) {
-                return new String(encoded);
+            /**
+             * Encodes a byte array into Base64 notation.
+             *
+             * @param source The data to convert
+             * @return The Base64-encoded data as a String
+             * @throws NullPointerException     if source array is null
+             * @throws IllegalArgumentException if source array, offset, or length are invalid
+             * @since 2.0
+             */
+            public static String encodeBytes(byte[] source) {
+                return encodeBytes(source, 0, source.length);
             }
-        }
 
-        /**
-         * Similar to {@link #encodeBytes(byte[], int, int)} but returns a byte
-         * array instead of instantiating a String. This is more efficient if you're
-         * working with I/O streams and have large data sets to encode.
-         *
-         * @param source The data to convert
-         * @param off    Offset in array where conversion should begin
-         * @param len    Length of data to convert
-         * @return The Base64-encoded data as a String if there is an error
-         * @throws NullPointerException     if source array is null
-         * @throws IllegalArgumentException if source array, offset, or length are invalid
-         * @since 2.3.1
-         */
-        public static byte[] encodeBytesToBytes(byte[] source, int off, int len) {
+            /**
+             * Encodes a byte array into Base64 notation.
+             *
+             * @param source The data to convert
+             * @param off    Offset in array where conversion should begin
+             * @param len    Length of data to convert
+             * @return The Base64-encoded data as a String
+             * @throws NullPointerException     if source array is null
+             * @throws IllegalArgumentException if source array, offset, or length are invalid
+             * @since 2.0
+             */
+            public static String encodeBytes(byte[] source, int off, int len) {
+                byte[] encoded = encodeBytesToBytes(source, off, len);
+                try {
+                    return new String(encoded, PREFERRED_ENCODING);
+                } catch (UnsupportedEncodingException uue) {
+                    return new String(encoded);
+                }
+            }
 
-            if (source == null)
-                throw new NullPointerException("Cannot serialize a null array.");
+            /**
+             * Similar to {@link #encodeBytes(byte[], int, int)} but returns a byte
+             * array instead of instantiating a String. This is more efficient if you're
+             * working with I/O streams and have large data sets to encode.
+             *
+             * @param source The data to convert
+             * @param off    Offset in array where conversion should begin
+             * @param len    Length of data to convert
+             * @return The Base64-encoded data as a String if there is an error
+             * @throws NullPointerException     if source array is null
+             * @throws IllegalArgumentException if source array, offset, or length are invalid
+             * @since 2.3.1
+             */
+            public static byte[] encodeBytesToBytes(byte[] source, int off, int len) {
 
-            if (off < 0)
-                throw new IllegalArgumentException("Cannot have negative offset: "
+                if (source == null)
+                    throw new NullPointerException("Cannot serialize a null array.");
+
+                if (off < 0)
+                    throw new IllegalArgumentException("Cannot have negative offset: "
                         + off);
 
-            if (len < 0)
-                throw new IllegalArgumentException("Cannot have length offset: " + len);
+                if (len < 0)
+                    throw new IllegalArgumentException("Cannot have length offset: " + len);
 
-            if (off + len > source.length)
-                throw new IllegalArgumentException(
+                if (off + len > source.length)
+                    throw new IllegalArgumentException(
                         String
-                                .format(
-                                        "Cannot have offset of %d and length of %d with array of length %d",
-                                        off, len, source.length));
+                            .format(
+                                "Cannot have offset of %d and length of %d with array of length %d",
+                                off, len, source.length));
 
-            // Bytes needed for actual encoding
-            int encLen = (len / 3) * 4 + (len % 3 > 0 ? 4 : 0);
+                // Bytes needed for actual encoding
+                int encLen = (len / 3) * 4 + (len % 3 > 0 ? 4 : 0);
 
-            byte[] outBuff = new byte[encLen];
+                byte[] outBuff = new byte[encLen];
 
-            int d = 0;
-            int e = 0;
-            int len2 = len - 2;
-            for (; d < len2; d += 3, e += 4)
-                encode3to4(source, d + off, 3, outBuff, e);
+                int d = 0;
+                int e = 0;
+                int len2 = len - 2;
+                for (; d < len2; d += 3, e += 4)
+                    encode3to4(source, d + off, 3, outBuff, e);
 
-            if (d < len) {
-                encode3to4(source, d + off, len - d, outBuff, e);
-                e += 4;
+                if (d < len) {
+                    encode3to4(source, d + off, len - d, outBuff, e);
+                    e += 4;
+                }
+
+                if (e <= outBuff.length - 1) {
+                    byte[] finalOut = new byte[e];
+                    System.arraycopy(outBuff, 0, finalOut, 0, e);
+                    return finalOut;
+                } else
+                    return outBuff;
+            }
+        }
+
+        /**
+         * HTTP request exception whose cause is always an {@link IOException}
+         */
+        public static class HttpRequestException extends RuntimeException {
+
+            private static final long serialVersionUID = -1170466989781746231L;
+
+            /**
+             * Create a new HttpRequestException with the given cause
+             *
+             * @param cause
+             */
+            public HttpRequestException(final IOException cause) {
+                super(cause);
             }
 
-            if (e <= outBuff.length - 1) {
-                byte[] finalOut = new byte[e];
-                System.arraycopy(outBuff, 0, finalOut, 0, e);
-                return finalOut;
-            } else
-                return outBuff;
-        }
-    }
-
-    /**
-     * HTTP request exception whose cause is always an {@link IOException}
-     */
-    public static class HttpRequestException extends RuntimeException {
-
-        private static final long serialVersionUID = -1170466989781746231L;
-
-        /**
-         * Create a new HttpRequestException with the given cause
-         *
-         * @param cause
-         */
-        public HttpRequestException(final IOException cause) {
-            super(cause);
+            /**
+             * Get {@link IOException} that triggered this request exception
+             *
+             * @return {@link IOException} cause
+             */
+            @Override
+            public IOException getCause() {
+                return (IOException) super.getCause();
+            }
         }
 
         /**
-         * Get {@link IOException} that triggered this request exception
+         * Operation that handles executing a callback once complete and handling
+         * nested exceptions
          *
-         * @return {@link IOException} cause
+         * @param <V>
          */
-        @Override
-        public IOException getCause() {
-            return (IOException) super.getCause();
-        }
-    }
+        protected static abstract class Operation<V> implements Callable<V> {
 
-    /**
-     * Operation that handles executing a callback once complete and handling
-     * nested exceptions
-     *
-     * @param <V>
-     */
-    protected static abstract class Operation<V> implements Callable<V> {
+            /**
+             * Run operation
+             *
+             * @return result
+             * @throws HttpRequestException
+             * @throws IOException
+             */
+            protected abstract V run() throws HttpRequestException, IOException;
 
-        /**
-         * Run operation
-         *
-         * @return result
-         * @throws HttpRequestException
-         * @throws IOException
-         */
-        protected abstract V run() throws HttpRequestException, IOException;
+            /**
+             * Operation complete callback
+             *
+             * @throws IOException
+             */
+            protected abstract void done() throws IOException;
 
-        /**
-         * Operation complete callback
-         *
-         * @throws IOException
-         */
-        protected abstract void done() throws IOException;
-
-        public V call() throws HttpRequestException {
-            boolean thrown = false;
-            try {
-                return run();
-            } catch (HttpRequestException e) {
-                thrown = true;
-                throw e;
-            } catch (IOException e) {
-                thrown = true;
-                throw new HttpRequestException(e);
-            } finally {
+            public V call() throws HttpRequestException {
+                boolean thrown = false;
                 try {
-                    done();
+                    return run();
+                } catch (HttpRequestException e) {
+                    thrown = true;
+                    throw e;
                 } catch (IOException e) {
-                    if (!thrown)
-                        throw new HttpRequestException(e);
+                    thrown = true;
+                    throw new HttpRequestException(e);
+                } finally {
+                    try {
+                        done();
+                    } catch (IOException e) {
+                        if (!thrown)
+                            throw new HttpRequestException(e);
+                    }
                 }
             }
         }
-    }
-
-    /**
-     * Class that ensures a {@link Closeable} gets closed with proper exception
-     * handling.
-     *
-     * @param <V>
-     */
-    protected static abstract class CloseOperation<V> extends Operation<V> {
-
-        private final Closeable closeable;
-
-        private final boolean ignoreCloseExceptions;
 
         /**
-         * Create closer for operation
+         * Class that ensures a {@link Closeable} gets closed with proper exception
+         * handling.
          *
-         * @param closeable
-         * @param ignoreCloseExceptions
+         * @param <V>
          */
-        protected CloseOperation(final Closeable closeable,
-                                 final boolean ignoreCloseExceptions) {
-            this.closeable = closeable;
-            this.ignoreCloseExceptions = ignoreCloseExceptions;
-        }
+        protected static abstract class CloseOperation<V> extends Operation<V> {
 
-        @Override
-        protected void done() throws IOException {
-            if (closeable instanceof Flushable)
-                ((Flushable) closeable).flush();
-            if (ignoreCloseExceptions)
-                try {
+            private final Closeable closeable;
+
+            private final boolean ignoreCloseExceptions;
+
+            /**
+             * Create closer for operation
+             *
+             * @param closeable
+             * @param ignoreCloseExceptions
+             */
+            protected CloseOperation(final Closeable closeable,
+                                     final boolean ignoreCloseExceptions) {
+                this.closeable = closeable;
+                this.ignoreCloseExceptions = ignoreCloseExceptions;
+            }
+
+            @Override
+            protected void done() throws IOException {
+                if (closeable instanceof Flushable)
+                    ((Flushable) closeable).flush();
+                if (ignoreCloseExceptions)
+                    try {
+                        closeable.close();
+                    } catch (IOException e) {
+                        // Ignored
+                    }
+                else
                     closeable.close();
-                } catch (IOException e) {
-                    // Ignored
-                }
-            else
-                closeable.close();
+            }
+        }
+
+        /**
+         * Class that and ensures a {@link Flushable} gets flushed with proper
+         * exception handling.
+         *
+         * @param <V>
+         */
+        protected static abstract class FlushOperation<V> extends Operation<V> {
+
+            private final Flushable flushable;
+
+            /**
+             * Create flush operation
+             *
+             * @param flushable
+             */
+            protected FlushOperation(final Flushable flushable) {
+                this.flushable = flushable;
+            }
+
+            @Override
+            protected void done() throws IOException {
+                flushable.flush();
+            }
+        }
+
+        /**
+         * Request output stream
+         */
+        public static class RequestOutputStream extends BufferedOutputStream {
+
+            private final CharsetEncoder encoder;
+
+            /**
+             * Create request output stream
+             *
+             * @param stream
+             * @param charset
+             * @param bufferSize
+             */
+            public RequestOutputStream(final OutputStream stream, final String charset, final int bufferSize) {
+                super(stream, bufferSize);
+
+                encoder = Charset.forName(getValidCharset(charset)).newEncoder();
+            }
+
+            /**
+             * Write string to stream
+             *
+             * @param value
+             * @return this stream
+             * @throws IOException
+             */
+            public RequestOutputStream write(final String value) throws IOException {
+                final ByteBuffer bytes = encoder.encode(CharBuffer.wrap(value));
+
+                super.write(bytes.array(), 0, bytes.limit());
+
+                return this;
+            }
         }
     }
-
-    /**
-     * Class that and ensures a {@link Flushable} gets flushed with proper
-     * exception handling.
-     *
-     * @param <V>
-     */
-    protected static abstract class FlushOperation<V> extends Operation<V> {
-
-        private final Flushable flushable;
-
-        /**
-         * Create flush operation
-         *
-         * @param flushable
-         */
-        protected FlushOperation(final Flushable flushable) {
-            this.flushable = flushable;
-        }
-
-        @Override
-        protected void done() throws IOException {
-            flushable.flush();
-        }
-    }
-
-    /**
-     * Request output stream
-     */
-    public static class RequestOutputStream extends BufferedOutputStream {
-
-        private final CharsetEncoder encoder;
-
-        /**
-         * Create request output stream
-         *
-         * @param stream
-         * @param charset
-         * @param bufferSize
-         */
-        public RequestOutputStream(final OutputStream stream, final String charset,final int bufferSize) {
-            super(stream, bufferSize);
-
-            encoder = Charset.forName(getValidCharset(charset)).newEncoder();
-        }
-
-        /**
-         * Write string to stream
-         *
-         * @param value
-         * @return this stream
-         * @throws IOException
-         */
-        public RequestOutputStream write(final String value) throws IOException {
-            final ByteBuffer bytes = encoder.encode(CharBuffer.wrap(value));
-
-            super.write(bytes.array(), 0, bytes.limit());
-
-            return this;
-        }
+}
 
 
