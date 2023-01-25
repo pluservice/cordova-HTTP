@@ -89,6 +89,15 @@ public class CordovaHttpPlugin extends CordovaPlugin {
                 e.printStackTrace();
                 callbackContext.error("There was an error setting up ssl pinning");
             }
+        } else if (action.equals("enablePublicKeyPinning")) {
+            try {
+                boolean enable = args.getBoolean(0);
+                this.enablePublicKeyPinning(enable);
+                callbackContext.success();
+            } catch(Exception e) {
+                e.printStackTrace();
+                callbackContext.error("There was an error setting up public key pinning");
+            }
         } else if (action.equals("acceptAllCerts")) {
             boolean accept = args.getBoolean(0);
             CordovaHttp.acceptAllCerts(accept);
@@ -124,38 +133,56 @@ public class CordovaHttpPlugin extends CordovaPlugin {
 
     private void enableSSLPinning(boolean enable) throws GeneralSecurityException, IOException {
         if (enable) {
-            AssetManager assetManager = cordova.getActivity().getAssets();
-            String[] files = assetManager.list("");
-            int index;
-            ArrayList<String> cerFiles = new ArrayList<String>();
-            for (int i = 0; i < files.length; i++) {
-                index = files[i].lastIndexOf('.');
-                if (index != -1) {
-                    if (files[i].substring(index).equals(".cer")) {
-                        cerFiles.add(files[i]);
-                    }
-                }
-            }
-
-            // scan the www/certificates folder for .cer files as well
-            files = assetManager.list("www/certificates");
-            for (int i = 0; i < files.length; i++) {
-                index = files[i].lastIndexOf('.');
-                if (index != -1) {
-                    if (files[i].substring(index).equals(".cer")) {
-                        cerFiles.add("www/certificates/" + files[i]);
-                    }
-                }
-            }
-
-            for (int i = 0; i < cerFiles.size(); i++) {
-                InputStream in = cordova.getActivity().getAssets().open(cerFiles.get(i));
-                InputStream caInput = new BufferedInputStream(in);
-                HttpRequest.addCert(caInput);
-            }
+            readCertificates(false);
             CordovaHttp.enableSSLPinning(true);
         } else {
             CordovaHttp.enableSSLPinning(false);
+        }
+    }
+
+    private void enablePublicKeyPinning(boolean enable)throws GeneralSecurityException, IOException  {
+        if(enable){
+            readCertificates(true);
+            CordovaHttp.enablePublicKeyPinning(true);
+        } else {
+            CordovaHttp.enablePublicKeyPinning(false);
+        }
+    }
+
+    private void readCertificates(boolean storePublicKey) throws GeneralSecurityException, IOException{
+        AssetManager assetManager = cordova.getActivity().getAssets();
+        String[] files = assetManager.list("");
+        int index;
+        ArrayList<String> cerFiles = new ArrayList<String>();
+        for (int i = 0; i < files.length; i++) {
+            index = files[i].lastIndexOf('.');
+            if (index != -1) {
+                if (files[i].substring(index).equals(".cer")) {
+                    cerFiles.add(files[i]);
+                }
+            }
+        }
+
+        // scan the www/certificates folder for .cer files as well
+        files = assetManager.list("www/certificates");
+        for (int i = 0; i < files.length; i++) {
+            index = files[i].lastIndexOf('.');
+            if (index != -1) {
+                if (files[i].substring(index).equals(".cer")) {
+                    cerFiles.add("www/certificates/" + files[i]);
+                }
+            }
+        }
+
+        for (int i = 0; i < cerFiles.size(); i++) {
+            InputStream in = cordova.getActivity().getAssets().open(cerFiles.get(i));
+            InputStream caInput = new BufferedInputStream(in);
+             try{
+               HttpRequest.addCert(caInput, storePublicKey);
+             }
+             finally {
+               in.close();
+            }
         }
     }
 

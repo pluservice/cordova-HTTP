@@ -9,16 +9,33 @@ import org.apache.cordova.CallbackContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.HostnameVerifier;
+
+import java.util.Iterator;
+
+import android.util.Log;
 
 public abstract class CordovaHttp {
     protected static final String TAG = "CordovaHTTP";
     protected static final String CHARSET = "UTF-8";
 
     private static AtomicBoolean sslPinning = new AtomicBoolean(false);
+    private static AtomicBoolean publickKeyPinning = new AtomicBoolean(false);
     private static AtomicBoolean acceptAllCerts = new AtomicBoolean(false);
     private static AtomicBoolean validateDomainName = new AtomicBoolean(true);
     private String urlString;
@@ -45,6 +62,13 @@ public abstract class CordovaHttp {
         sslPinning.set(enable);
         if (enable) {
             acceptAllCerts.set(false);
+        }
+    }
+
+    public static void enablePublicKeyPinning(boolean enable){
+        publickKeyPinning.set(enable);
+        if(enable){
+            enableSSLPinning(false);
         }
     }
 

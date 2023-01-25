@@ -41,6 +41,9 @@ cordova.define("cordova-plugin-http.CordovaHttpPlugin", function (require, expor
         enableSSLPinning: function (enable, success, failure) {
             return exec(success, failure, "CordovaHttpPlugin", "enableSSLPinning", [enable]);
         },
+        enablePublicKeyPinning: function(enable, success, failure) {
+            return exec(success, failure, "CordovaHttpPlugin", "enablePublicKeyPinning", [enable]);
+        },
         acceptAllCerts: function (allow, success, failure) {
             return exec(success, failure, "CordovaHttpPlugin", "acceptAllCerts", [allow]);
         },
@@ -170,6 +173,9 @@ cordova.define("cordova-plugin-http.CordovaHttpPlugin", function (require, expor
                 },
                 enableSSLPinning: function (enable) {
                     return makePromise(http.enableSSLPinning, [enable]);
+                },
+                enablePublicKeyPinning: function(enable) {
+                    return makePromise(http.enablePublicKeyPinning, [enable]);
                 },
                 acceptAllCerts: function (allow) {
                     return makePromise(http.acceptAllCerts, [allow]);
