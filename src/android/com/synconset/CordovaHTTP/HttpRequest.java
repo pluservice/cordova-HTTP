@@ -2900,7 +2900,7 @@ public class HttpRequest {
         return this;
     }
 
-class MySocketFactory extends SSLSocketFactory {
+    class MySocketFactory extends SSLSocketFactory {
 
   private SSLSocketFactory internalSSLSocketFactory;
   private  ArrayList<PublicKey> PINNED_PUBLIC_KEY;
@@ -2955,19 +2955,19 @@ class MySocketFactory extends SSLSocketFactory {
         public void handshakeCompleted(HandshakeCompletedEvent event) {
           boolean keyIsTrust = false;
           for(PublicKey key : PINNED_PUBLIC_KEY){
-           try {
-            for(Certificate cer : event.getPeerCertificates()){
+            try {
+              for(Certificate cer : event.getPeerCertificates()){
                 keyIsTrust = keyIsTrust || cer.getPublicKey().hashCode() == (key.hashCode());
               }
             } catch (SSLPeerUnverifiedException e) {
-                e.printStackTrace();
+              e.printStackTrace();
             }
           }
           if(!keyIsTrust){
             try {
 
               event.getSocket().close();
-               //throw new SSLHandshakeException("Public Key not match");
+              //throw new SSLHandshakeException("Public Key not match");
             } catch (IOException e) {
               e.printStackTrace();
             }
@@ -3400,8 +3400,7 @@ class MySocketFactory extends SSLSocketFactory {
          * @param charset
          * @param bufferSize
          */
-        public RequestOutputStream(final OutputStream stream, final String charset,
-                                   final int bufferSize) {
+        public RequestOutputStream(final OutputStream stream, final String charset,final int bufferSize) {
             super(stream, bufferSize);
 
             encoder = Charset.forName(getValidCharset(charset)).newEncoder();
@@ -3422,4 +3421,5 @@ class MySocketFactory extends SSLSocketFactory {
             return this;
         }
     }
+}
 }
