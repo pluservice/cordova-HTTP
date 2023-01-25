@@ -495,7 +495,7 @@ public class HttpRequest {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public static void addCert(InputStream in, boolean storePublicKey) throws GeneralSecurityException,
+    public static void addCert(InputStream in, boolean storePublicKey) throws GeneralSecurityException, IOException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate ca;
        ca = cf.generateCertificate(in);
