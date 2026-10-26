@@ -1,5 +1,7 @@
 package com.github.kevinsawicki.http;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -76,7 +78,16 @@ public class TLSSocketFactory extends SSLSocketFactory {
 
     private Socket enableTLSOnSocket(Socket socket) {
         if (socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket) socket).setEnabledProtocols(new String[]{"TLSv1.2","TLSv1.3"});
+            String[] protocols;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10, API 29, o successivo
+                protocols = new String[]{"TLSv1.2", "TLSv1.3"};
+            } else {
+                // Android 9 o precedente
+                protocols = new String[]{"TLSv1.2"};
+            }
+            ((SSLSocket) socket).setEnabledProtocols(protocols);
         }
         return socket;
     }
